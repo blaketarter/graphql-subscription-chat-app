@@ -5,6 +5,8 @@
 ### Server
 
 - Set up GraphQL server
+- Setup PubSub
+- Add Subscription to Schema
 
 ## Resources
 
@@ -12,6 +14,7 @@
 
 - https://www.apollographql.com/docs/graphql-subscriptions
 - https://www.apollographql.com/docs/apollo-server/data/subscriptions/
+- https://github.com/apollographql/graphql-subscriptions
 
 ### Client
 
