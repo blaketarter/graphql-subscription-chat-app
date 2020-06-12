@@ -1,24 +1,42 @@
-import React from "react"
-import logo from "../../assets/logo.svg"
-import "./styles.css"
+import { ApolloProvider } from "@apollo/react-hooks"
+import { Box } from "@material-ui/core"
+import React, { useEffect, useState } from "react"
+import { BrowserRouter as Router } from "react-router-dom"
+import { client } from "../../utils/ApolloClient"
+import { Conversations } from "../Conversations"
+import { CreateAuthor } from "../CreateAuthor"
 
 export function App() {
+  const [userId, setUserId] = useState<string | null>(
+    sessionStorage.getItem("userId"),
+  )
+
+  useEffect(() => {
+    if (userId) {
+      sessionStorage.setItem("userId", userId)
+    } else {
+      sessionStorage.removeItem("userId")
+    }
+  }, [userId])
+
+  console.log(userId)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box
+      style={{
+        height: "100vh",
+        width: "100vw",
+      }}
+    >
+      <ApolloProvider client={client}>
+        <Router>
+          {userId ? (
+            <Conversations userId={userId} setUserId={setUserId} />
+          ) : (
+            <CreateAuthor setUserId={setUserId} />
+          )}
+        </Router>
+      </ApolloProvider>
+    </Box>
   )
 }
