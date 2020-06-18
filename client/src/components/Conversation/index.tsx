@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks"
 import { Box, Button, TextField, Typography } from "@material-ui/core"
+import AddIcon from "@material-ui/icons/Add"
 import SendIcon from "@material-ui/icons/Send"
 import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
@@ -9,6 +10,7 @@ import {
   Conversation as ConversationType,
   Message as MessageType,
 } from "../../types"
+import { DialogAddToConversation } from "../DialogAddToConversation"
 import { Message } from "../Message"
 
 interface Props {
@@ -142,6 +144,7 @@ export function Conversation({ authorId }: Props) {
     { body: string; authorId: string; conversationId: string }
   >(ADD_MESSAGE)
   const [newMessageBody, setNewMessageBody] = useState("")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   return (
     <Box
@@ -158,10 +161,17 @@ export function Conversation({ authorId }: Props) {
           position: "relative",
           zIndex: 3,
         }}
+        display="flex"
+        alignItems="space-between"
       >
-        <Typography variant="h6" component="h2">
-          {data?.conversation?.name}
-        </Typography>
+        <Box flexGrow={1}>
+          <Typography variant="h6" component="h2">
+            {data?.conversation?.name}
+          </Typography>
+        </Box>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <AddIcon />
+        </Button>
       </Box>
       <Box
         flexGrow={1}
@@ -250,6 +260,11 @@ export function Conversation({ authorId }: Props) {
           </Button>
         </form>
       </Box>
+      <DialogAddToConversation
+        open={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        conversationId={conversationId}
+      />
     </Box>
   )
 }
