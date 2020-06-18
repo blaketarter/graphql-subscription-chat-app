@@ -12,7 +12,7 @@ import { DialogCreateConversation } from "../DialogCreateConversation"
 import { DialogJoinConversation } from "../DialogJoinConversation"
 
 interface Props {
-  userId: string
+  userId: string | null
   setUserId: (userId: string | null) => unknown
 }
 
@@ -64,7 +64,7 @@ export function Conversations({ userId, setUserId }: Props) {
   const [joinOpen, setJoinOpen] = useState(false)
   const { data, error, refetch, loading } = useQuery<
     GetAuthorData,
-    { authorId: string }
+    { authorId: string | null }
   >(GET_AUTHOR, {
     variables: { authorId: userId },
     fetchPolicy: "network-only",
@@ -86,6 +86,7 @@ export function Conversations({ userId, setUserId }: Props) {
     >
       <Box
         width="40%"
+        maxWidth={450}
         padding={3}
         height={"100%"}
         style={{
@@ -96,7 +97,7 @@ export function Conversations({ userId, setUserId }: Props) {
         }}
       >
         <Typography variant="h6" component="h1">
-          {data?.author?.name}'s Conversations
+          {userId ? `${data?.author?.name}'s Conversations` : "Conversations"}
         </Typography>
         {data?.author?.conversations.map((conversation) => {
           const lastMessage =
@@ -128,14 +129,16 @@ export function Conversations({ userId, setUserId }: Props) {
         >
           <EditIcon />
         </Fab>
-        <DialogCreateConversation
-          open={createOpen}
-          authorId={userId}
-          refetch={() => {
-            setCreateOpen(false)
-            refetch({ authorId: userId })
-          }}
-        />
+        {userId ? (
+          <DialogCreateConversation
+            open={createOpen}
+            authorId={userId}
+            refetch={() => {
+              setCreateOpen(false)
+              refetch({ authorId: userId })
+            }}
+          />
+        ) : null}
         <Fab
           color="primary"
           aria-label="join conversation"
@@ -152,17 +155,20 @@ export function Conversations({ userId, setUserId }: Props) {
         >
           <ForumIcon />
         </Fab>
-        <DialogJoinConversation
-          open={joinOpen}
-          authorId={userId}
-          refetch={() => {
-            setJoinOpen(false)
-            refetch({ authorId: userId })
-          }}
-        />
+        {userId ? (
+          <DialogJoinConversation
+            open={joinOpen}
+            authorId={userId}
+            refetch={() => {
+              setJoinOpen(false)
+              refetch({ authorId: userId })
+            }}
+          />
+        ) : null}
       </Box>
       <Box
-        width="60%"
+        minWidth="60%"
+        width="100%"
         style={{
           backgroundColor: "rgb(223, 223, 223)",
           position: "relative",
@@ -171,13 +177,13 @@ export function Conversations({ userId, setUserId }: Props) {
         <Route
           path="/:conversationId"
           render={(props) => {
-            return (
+            return userId ? (
               <Conversation
                 key={props.match.params.conversationId}
                 authorId={userId}
                 refetch={() => refetch({ authorId: userId })}
               />
-            )
+            ) : null
           }}
         />
       </Box>

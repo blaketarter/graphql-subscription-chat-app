@@ -54,7 +54,7 @@ export function DialogJoinConversation({ authorId, open, refetch }: Props) {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent style={{ width: 500 }}>
           <TextField
             autoFocus
             label="What conversation dp you want to join?"
@@ -66,7 +66,7 @@ export function DialogJoinConversation({ authorId, open, refetch }: Props) {
         <DialogActions>
           <Button onClick={refetch}>Cancel</Button>
           <Button color="primary" type="submit">
-            Join the Conversation
+            Join
           </Button>
         </DialogActions>
       </form>

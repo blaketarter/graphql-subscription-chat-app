@@ -54,7 +54,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent style={{ width: 500 }}>
           <TextField
             autoFocus
             label="What do you want to call it?"
@@ -66,7 +66,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
         <DialogActions>
           <Button onClick={refetch}>Cancel</Button>
           <Button variant="contained" color="primary" type="submit">
-            Start the Conversation
+            Start
           </Button>
         </DialogActions>
       </form>

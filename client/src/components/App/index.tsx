@@ -29,11 +29,8 @@ export function App() {
     >
       <ApolloProvider client={client}>
         <Router>
-          {userId ? (
-            <Conversations userId={userId} setUserId={setUserId} />
-          ) : (
-            <CreateAuthor setUserId={setUserId} />
-          )}
+          <Conversations userId={userId} setUserId={setUserId} />
+          <CreateAuthor setUserId={setUserId} open={!Boolean(userId)} />
         </Router>
       </ApolloProvider>
     </Box>
