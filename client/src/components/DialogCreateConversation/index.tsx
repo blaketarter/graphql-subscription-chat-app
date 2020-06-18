@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core"
 import gql from "graphql-tag"
 import React, { useState } from "react"
+import { Conversation } from "../../types"
 
 interface Props {
   authorId: string
@@ -27,7 +28,12 @@ const CREATE_CONVERSATION = gql`
 
 export function DialogCreateConversation({ authorId, open, refetch }: Props) {
   const [name, setName] = useState("")
-  const [createConversation] = useMutation(CREATE_CONVERSATION)
+  const [createConversation] = useMutation<
+    {
+      createConversation: Pick<Conversation, "name" | "id">
+    },
+    { name: string; authorId: string }
+  >(CREATE_CONVERSATION)
 
   return (
     <Dialog open={open} onClose={() => refetch()}>
@@ -41,7 +47,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
               variables: { authorId, name },
             })
 
-            if (result?.data?.createConversation?.id) {
+            if (result?.data?.createConversation.id) {
               refetch()
               setName("")
             }

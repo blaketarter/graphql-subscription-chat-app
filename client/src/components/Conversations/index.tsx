@@ -5,6 +5,7 @@ import ForumIcon from "@material-ui/icons/Forum"
 import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
 import { Route, useHistory } from "react-router-dom"
+import { Author, Conversation as ConversationType, Message } from "../../types"
 import { Conversation } from "../Conversation"
 import { ConversationCard } from "../ConversationCard"
 import { DialogCreateConversation } from "../DialogCreateConversation"
@@ -41,11 +42,30 @@ const GET_AUTHOR = gql`
   }
 `
 
+type GetAuthorData = {
+  author:
+    | null
+    | (Pick<Author, "name" | "id"> & {
+        conversations: Array<
+          Pick<ConversationType, "id" | "name"> & {
+            participants: Array<Pick<Author, "id" | "name">>
+            messages: Array<
+              Pick<Message, "id" | "body" | "createdAt"> & {
+                author: Pick<Author, "id" | "name">
+              }
+            >
+          }
+        >
+      })
+}
+
 export function Conversations({ userId, setUserId }: Props) {
   const [createOpen, setCreateOpen] = useState(false)
   const [joinOpen, setJoinOpen] = useState(false)
-  console.log(userId)
-  const { data, error, refetch, loading } = useQuery(GET_AUTHOR, {
+  const { data, error, refetch, loading } = useQuery<
+    GetAuthorData,
+    { authorId: string }
+  >(GET_AUTHOR, {
     variables: { authorId: userId },
     fetchPolicy: "network-only",
   })
@@ -78,23 +98,17 @@ export function Conversations({ userId, setUserId }: Props) {
         <Typography variant="h6" component="h1">
           {data?.author?.name}'s Conversations
         </Typography>
-        {data?.author?.conversations?.map((conversation: any) => {
+        {data?.author?.conversations.map((conversation) => {
+          const lastMessage =
+            conversation.messages[conversation.messages.length - 1]
           return (
             <ConversationCard
               key={conversation.id}
               id={conversation.id}
               name={conversation.name}
-              lastMessage={
-                conversation?.messages?.[conversation?.messages?.length - 1]
-                  ?.body ?? undefined
-              }
-              lastAuthor={
-                conversation?.messages?.[conversation?.messages?.length - 1]
-                  ?.author?.name ?? undefined
-              }
-              participants={conversation?.participants?.map(
-                (p: any) => p?.name ?? "",
-              )}
+              lastMessage={lastMessage?.body}
+              lastAuthor={lastMessage?.author?.name}
+              participants={conversation.participants.map((p) => p.name)}
             />
           )
         })}

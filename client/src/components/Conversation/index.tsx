@@ -4,6 +4,11 @@ import SendIcon from "@material-ui/icons/Send"
 import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import {
+  Author,
+  Conversation as ConversationType,
+  Message as MessageType,
+} from "../../types"
 import { Message } from "../Message"
 
 interface Props {
@@ -36,6 +41,20 @@ const GET_CONVERSATION = gql`
   }
 `
 
+type GetConversationData = {
+  conversation:
+    | null
+    | (Pick<ConversationType, "id" | "name"> & {
+        participants: Array<Pick<Author, "id" | "name">>
+        messages: Array<
+          Pick<MessageType, "id" | "body" | "createdAt"> & {
+            author: Pick<Author, "id" | "name">
+            conversation: Pick<ConversationType, "id">
+          }
+        >
+      })
+}
+
 const ADD_MESSAGE = gql`
   mutation AddMessage(
     $body: String!
@@ -49,6 +68,7 @@ const ADD_MESSAGE = gql`
     ) {
       id
       body
+      createdAt
       author {
         id
         name
@@ -56,12 +76,18 @@ const ADD_MESSAGE = gql`
     }
   }
 `
+type AddMessageData = {
+  addMessage: Pick<MessageType, "id" | "body" | "createdAt"> & {
+    author: Pick<Author, "id" | "name">
+  }
+}
 
 const MESSAGE_ADDED = gql`
   subscription MessageAdded($conversationId: String!) {
     messageAdded(conversationId: $conversationId) {
       id
       body
+      createdAt
       author {
         id
         name
@@ -72,18 +98,37 @@ const MESSAGE_ADDED = gql`
     }
   }
 `
+type MessageAddedData = {
+  messageAdded: Pick<MessageType, "id" | "body" | "createdAt"> & {
+    author: Pick<Author, "id" | "name">
+    conversation: Pick<ConversationType, "id">
+  }
+}
 
 export function Conversation({ authorId }: Props) {
   const { conversationId } = useParams()
-  const { data } = useQuery(GET_CONVERSATION, {
-    variables: { conversationId },
-    fetchPolicy: "network-only",
-  })
-  const { data: subscriptionData } = useSubscription(MESSAGE_ADDED, {
+  const { data } = useQuery<GetConversationData, { conversationId: string }>(
+    GET_CONVERSATION,
+    {
+      variables: { conversationId },
+      fetchPolicy: "network-only",
+    },
+  )
+  const { data: subscriptionData } = useSubscription<
+    MessageAddedData,
+    { conversationId: string }
+  >(MESSAGE_ADDED, {
     variables: { conversationId },
   })
 
-  const [newMessages, setNewMessages] = useState<any[]>([])
+  const [newMessages, setNewMessages] = useState<
+    Array<
+      Pick<MessageType, "id" | "body" | "createdAt"> & {
+        author: Pick<Author, "id" | "name">
+        conversation: Pick<ConversationType, "id">
+      }
+    >
+  >([])
 
   useEffect(() => {
     if (subscriptionData?.messageAdded?.id) {
@@ -92,8 +137,11 @@ export function Conversation({ authorId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptionData])
 
-  const [addMessage] = useMutation(ADD_MESSAGE)
-  const [newMessage, setNewMessage] = useState("")
+  const [addMessage] = useMutation<
+    AddMessageData,
+    { body: string; authorId: string; conversationId: string }
+  >(ADD_MESSAGE)
+  const [newMessageBody, setNewMessageBody] = useState("")
 
   return (
     <Box
@@ -125,13 +173,13 @@ export function Conversation({ authorId }: Props) {
         padding={3}
       >
         <Box>
-          {data?.conversation?.messages?.map((message: any) => {
+          {data?.conversation?.messages.map((message) => {
             return (
               <Message
-                key={message?.id}
-                isMe={message?.author?.id === authorId}
-                author={message?.author?.name ?? ""}
-                body={message?.body ?? ""}
+                key={message.id}
+                isMe={message.author.id === authorId}
+                author={message.author.name}
+                body={message.body}
               />
             )
           })}
@@ -139,18 +187,18 @@ export function Conversation({ authorId }: Props) {
           {newMessages
             ?.filter((newMessage) => {
               return (
-                !data?.conversation?.messages?.find(
-                  (message: any) => message.id === newMessage.id,
+                !data?.conversation?.messages.find(
+                  (message) => message.id === newMessage.id,
                 ) && newMessage.conversation.id === conversationId
               )
             })
-            .map((message: any) => {
+            .map((message) => {
               return (
                 <Message
-                  key={message?.id}
-                  isMe={message?.author?.id === authorId}
-                  author={message?.author?.name ?? ""}
-                  body={message?.body ?? ""}
+                  key={message.id}
+                  isMe={message.author.id === authorId}
+                  author={message.author.name}
+                  body={message.body}
                 />
               )
             })}
@@ -171,16 +219,16 @@ export function Conversation({ authorId }: Props) {
           onSubmit={async (e) => {
             e.preventDefault()
 
-            if (newMessage.trim().length) {
+            if (newMessageBody.trim().length) {
               await addMessage({
                 variables: {
-                  body: newMessage,
+                  body: newMessageBody,
                   authorId,
                   conversationId,
                 },
               })
 
-              setNewMessage("")
+              setNewMessageBody("")
             }
           }}
           style={{
@@ -193,9 +241,9 @@ export function Conversation({ authorId }: Props) {
             fullWidth
             name="new-message"
             placeholder="Start typing to send a new message..."
-            onChange={(e) => setNewMessage(e.currentTarget.value)}
+            onChange={(e) => setNewMessageBody(e.currentTarget.value)}
             style={{ marginRight: 15 }}
-            value={newMessage}
+            value={newMessageBody}
           />
           <Button color="primary" type="submit" variant="contained">
             <SendIcon />
