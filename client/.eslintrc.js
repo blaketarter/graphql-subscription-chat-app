@@ -23,6 +23,7 @@ module.exports = {
     "prettier/prettier": "error",
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "@typescript-eslint/explicit-function-return-type": "off", // TS can infer this
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "sort-imports": ["error", {
       "ignoreDeclarationSort": true
     }],

@@ -10,7 +10,7 @@ interface Props {
 export function Message({ isMe, author, body }: Props) {
   return (
     <Box
-      mt={3}
+      my={2}
       style={{
         position: "relative",
         width: "100%",
@@ -41,7 +41,12 @@ export function Message({ isMe, author, body }: Props) {
         >
           {author[0]}
         </Box>
-        <Card>
+        <Card
+          style={{
+            background: isMe ? "#3f51b5" : "white",
+            color: isMe ? "white" : "black",
+          }}
+        >
           <Box padding={2}>
             <Typography>{body}</Typography>
           </Box>

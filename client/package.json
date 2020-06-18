@@ -13,12 +13,14 @@
     "apollo-link": "^1.2.14",
     "apollo-link-error": "^1.1.13",
     "apollo-link-http": "^1.5.17",
+    "apollo-link-ws": "^1.0.20",
     "graphql": "^15.1.0",
     "graphql-tag": "^2.10.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "subscriptions-transport-ws": "^0.9.16"
   },
   "devDependencies": {
     "@babel/core": "7.10.2",
@@ -89,7 +91,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "npm run prepush",
+      "pre-push": "npm run prepush"
     }
   },
   "jest": {

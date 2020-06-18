@@ -30,7 +30,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
   const [createConversation] = useMutation(CREATE_CONVERSATION)
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onClose={() => refetch()}>
       <DialogTitle>Start a new Conversation</DialogTitle>
       <form
         onSubmit={async (e) => {
@@ -50,6 +50,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
       >
         <DialogContent>
           <TextField
+            autoFocus
             label="What do you want to call it?"
             name="name"
             onChange={(e) => setName(e.currentTarget.value)}
@@ -58,7 +59,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={refetch}>Cancel</Button>
-          <Button color="primary" type="submit">
+          <Button variant="contained" color="primary" type="submit">
             Start the Conversation
           </Button>
         </DialogActions>

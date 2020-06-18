@@ -16,50 +16,51 @@ interface Props {
   refetch: () => unknown
 }
 
-const CREATE_CONVERSATION = gql`
-  mutation CreateConversation($name: String!, $authorId: String!) {
-    createConversation(name: $name, authorId: $authorId) {
+const JOIN_CONVERSATION = gql`
+  mutation JoinConversation($conversationId: String!, $authorId: String!) {
+    joinConversation(conversationId: $conversationId, authorId: $authorId) {
       name
       id
     }
   }
 `
 
-export function DialogCreateConversation({ authorId, open, refetch }: Props) {
-  const [name, setName] = useState("")
-  const [createConversation] = useMutation(CREATE_CONVERSATION)
+export function DialogJoinConversation({ authorId, open, refetch }: Props) {
+  const [id, setId] = useState("")
+  const [joinConversation] = useMutation(JOIN_CONVERSATION)
 
   return (
-    <Dialog open={open}>
-      <DialogTitle>Start a new Conversation</DialogTitle>
+    <Dialog open={open} onClose={() => refetch()}>
+      <DialogTitle>Join an existing Conversation</DialogTitle>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
 
-          if (name.trim().length) {
-            const result = await createConversation({
-              variables: { authorId, name },
+          if (id.trim().length) {
+            const result = await joinConversation({
+              variables: { authorId, conversationId: id },
             })
 
-            if (result?.data?.createConversation?.id) {
+            if (result?.data?.joinConversation?.id) {
               refetch()
-              setName("")
+              setId("")
             }
           }
         }}
       >
         <DialogContent>
           <TextField
-            label="What do you want to call it?"
-            name="name"
-            onChange={(e) => setName(e.currentTarget.value)}
+            autoFocus
+            label="What conversation dp you want to join?"
+            name="id"
+            onChange={(e) => setId(e.currentTarget.value)}
             fullWidth={true}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={refetch}>Cancel</Button>
           <Button color="primary" type="submit">
-            Start the Conversation
+            Join the Conversation
           </Button>
         </DialogActions>
       </form>

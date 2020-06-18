@@ -19,13 +19,12 @@ export function App() {
     }
   }, [userId])
 
-  console.log(userId)
-
   return (
     <Box
       style={{
         height: "100vh",
         width: "100vw",
+        overflow: "hidden",
       }}
     >
       <ApolloProvider client={client}>

@@ -1,12 +1,14 @@
 import { useQuery } from "@apollo/react-hooks"
 import { Box, Fab, Typography } from "@material-ui/core"
 import EditIcon from "@material-ui/icons/Edit"
+import ForumIcon from "@material-ui/icons/Forum"
 import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
-import { Route } from "react-router-dom"
+import { Route, useHistory } from "react-router-dom"
 import { Conversation } from "../Conversation"
 import { ConversationCard } from "../ConversationCard"
 import { DialogCreateConversation } from "../DialogCreateConversation"
+import { DialogJoinConversation } from "../DialogJoinConversation"
 
 interface Props {
   userId: string
@@ -29,6 +31,10 @@ const GET_AUTHOR = gql`
           id
           body
           createdAt
+          author {
+            id
+            name
+          }
         }
       }
     }
@@ -37,18 +43,20 @@ const GET_AUTHOR = gql`
 
 export function Conversations({ userId, setUserId }: Props) {
   const [createOpen, setCreateOpen] = useState(false)
-  // const [joinOpen, setJoinOpen] = useState(false)
-  const { data, error, refetch } = useQuery(GET_AUTHOR, {
+  const [joinOpen, setJoinOpen] = useState(false)
+  console.log(userId)
+  const { data, error, refetch, loading } = useQuery(GET_AUTHOR, {
     variables: { authorId: userId },
+    fetchPolicy: "network-only",
   })
+  const history = useHistory()
 
   useEffect(() => {
-    if (error) {
+    if (error || (!loading && !data?.author)) {
+      history.push("/")
       setUserId(null)
     }
-  })
-
-  console.log(data)
+  }, [error, loading, data, setUserId, history])
 
   return (
     <Box
@@ -80,6 +88,10 @@ export function Conversations({ userId, setUserId }: Props) {
                 conversation?.messages?.[conversation?.messages?.length - 1]
                   ?.body ?? undefined
               }
+              lastAuthor={
+                conversation?.messages?.[conversation?.messages?.length - 1]
+                  ?.author?.name ?? undefined
+              }
               participants={conversation?.participants?.map(
                 (p: any) => p?.name ?? "",
               )}
@@ -91,9 +103,10 @@ export function Conversations({ userId, setUserId }: Props) {
           aria-label="new conversation"
           style={{
             position: "absolute",
-            bottom: 25,
+            bottom: 95,
             right: 0,
             transform: "translateX(25px)",
+            zIndex: 10,
           }}
           onClick={() => {
             setCreateOpen(true)
@@ -106,16 +119,33 @@ export function Conversations({ userId, setUserId }: Props) {
           authorId={userId}
           refetch={() => {
             setCreateOpen(false)
-            refetch()
+            refetch({ authorId: userId })
           }}
         />
-        {/* <DialogJoinConversation
+        <Fab
+          color="primary"
+          aria-label="join conversation"
+          style={{
+            position: "absolute",
+            bottom: 25,
+            right: 0,
+            transform: "translateX(25px)",
+            zIndex: 10,
+          }}
+          onClick={() => {
+            setJoinOpen(true)
+          }}
+        >
+          <ForumIcon />
+        </Fab>
+        <DialogJoinConversation
           open={joinOpen}
+          authorId={userId}
           refetch={() => {
             setJoinOpen(false)
-            refetch()
+            refetch({ authorId: userId })
           }}
-        /> */}
+        />
       </Box>
       <Box
         width="60%"
@@ -124,9 +154,18 @@ export function Conversations({ userId, setUserId }: Props) {
           position: "relative",
         }}
       >
-        <Route path="/:conversationId">
-          <Conversation authorId={userId} />
-        </Route>
+        <Route
+          path="/:conversationId"
+          render={(props) => {
+            return (
+              <Conversation
+                key={props.match.params.conversationId}
+                authorId={userId}
+                refetch={() => refetch({ authorId: userId })}
+              />
+            )
+          }}
+        />
       </Box>
     </Box>
   )

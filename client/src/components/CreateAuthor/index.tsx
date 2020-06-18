@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/react-hooks"
-import { Box, Paper } from "@material-ui/core"
+import { Box, Button, Paper, TextField, Typography } from "@material-ui/core"
 import gql from "graphql-tag"
 import React, { useState } from "react"
 
@@ -21,30 +21,42 @@ export function CreateAuthor({ setUserId }: Props) {
   const [createAuthor] = useMutation(CREATE_AUTHOR)
 
   return (
-    <Box>
-      <Paper elevation={2}>
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
+    <Box
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      height="100vh"
+    >
+      <Paper elevation={2} style={{ width: 300 }}>
+        <Box padding={5}>
+          <Typography variant="h4">Let's start chatting,</Typography>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault()
 
-            if (name.trim().length) {
-              const result = await createAuthor({ variables: { name } })
-              console.log(result)
-              if (result?.data?.createAuthor?.id) {
-                setName("")
-                setUserId(result.data.createAuthor.id)
+              if (name.trim().length) {
+                const result = await createAuthor({ variables: { name } })
+                if (result?.data?.createAuthor?.id) {
+                  setName("")
+                  setUserId(result.data.createAuthor.id)
+                }
               }
-            }
-          }}
-        >
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.currentTarget.value)}
-          />
-          <input type="submit" value="Set Name" />
-        </form>
+            }}
+          >
+            <TextField
+              type="text"
+              name="name"
+              label="What is your name?"
+              fullWidth
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
+              style={{ marginBottom: 16 }}
+            />
+            <Button fullWidth variant="contained" color="primary" type="submit">
+              Set Name
+            </Button>
+          </form>
+        </Box>
       </Paper>
     </Box>
   )

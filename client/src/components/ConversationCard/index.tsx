@@ -7,9 +7,21 @@ interface Props {
   name: string
   participants: string[]
   lastMessage?: string
+  lastAuthor?: string
 }
 
-export function ConversationCard({ id, name, participants }: Props) {
+export function ConversationCard({
+  id,
+  name,
+  participants,
+  lastMessage,
+  lastAuthor,
+}: Props) {
+  const truncatedLastMessage =
+    (lastMessage?.length ?? 0) > 57
+      ? lastMessage?.slice(0, 57) + "..."
+      : lastMessage
+
   return (
     <Box mt={3}>
       <Card>
@@ -21,17 +33,23 @@ export function ConversationCard({ id, name, participants }: Props) {
           }}
         >
           <Box padding={2}>
-            <Typography style={{ fontWeight: "bold", textDecoration: "none" }}>
-              {name}
-            </Typography>
-            {/* <Typography variant="body2">
-            {lastMessage ?? <em>No messages</em>}
-          </Typography> */}
+            <Box pb={1}>
+              <Typography
+                style={{ fontWeight: "bold", textDecoration: "none" }}
+              >
+                {name}
+              </Typography>
+            </Box>
+            {truncatedLastMessage && lastAuthor ? (
+              <Typography variant="body2">
+                {lastAuthor}: {truncatedLastMessage}
+              </Typography>
+            ) : null}
             <Typography
               variant="subtitle2"
               style={{ opacity: 0.6, textDecoration: "none" }}
             >
-              <em>Participants: {participants}</em>
+              <em>Participants: {participants.join(", ")}</em>
             </Typography>
           </Box>
         </Link>

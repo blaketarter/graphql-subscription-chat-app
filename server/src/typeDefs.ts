@@ -41,5 +41,6 @@ export const typeDefs = gql`
     createAuthor(name: String!): Author!
     addMessage(body: String!, authorId: String!, conversationId: String!): Message!
     createConversation(name: String!, authorId: String!): Conversation!
+    joinConversation(conversationId: String!, authorId: String!): Conversation!
   }
 `;

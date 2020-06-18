@@ -106,5 +106,29 @@ export const resolvers = {
 
       return conversation
     },
+    joinConversation(_root: unknown, { conversationId, authorId }: { conversationId: string, authorId: string }, _context: unknown) {
+      const author = authors.get(authorId)
+
+      if (!author) {
+        throw new Error("No author found")
+      }
+
+      const conversation = conversations.get(conversationId)
+
+      if (!conversation) {
+        throw new Error("No conversation found")
+      }
+
+      const now = new Date()
+
+      if (!conversation.participants.find(participant => participant.id === authorId)) {
+        conversation.participants.push(author)
+        author.conversations.push(conversation)
+        author.updatedAt = now
+        conversation.updatedAt = now
+      }
+
+      return conversation
+    },
   },
 };
