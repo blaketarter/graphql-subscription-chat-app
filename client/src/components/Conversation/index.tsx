@@ -1,8 +1,6 @@
-import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks"
 import { Box, Button, TextField, Typography } from "@material-ui/core"
 import AddIcon from "@material-ui/icons/Add"
 import SendIcon from "@material-ui/icons/Send"
-import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import {
@@ -12,125 +10,32 @@ import {
 } from "../../types"
 import { DialogAddToConversation } from "../DialogAddToConversation"
 import { Message } from "../Message"
+import {
+  useAddMessageMutation,
+  useConversationQuery,
+  useMessageAddedSubscription,
+} from "./hooks"
 
 interface Props {
   authorId: string
   refetch: () => unknown
 }
 
-const GET_CONVERSATION = gql`
-  query GetConversation($conversationId: String!) {
-    conversation(conversationId: $conversationId) {
-      id
-      name
-      participants {
-        id
-        name
-      }
-      messages {
-        id
-        body
-        createdAt
-        author {
-          id
-          name
-        }
-        conversation {
-          id
-        }
-      }
-    }
-  }
-`
-
-type GetConversationData = {
-  conversation:
-    | null
-    | (Pick<ConversationType, "id" | "name"> & {
-        participants: Array<Pick<Author, "id" | "name">>
-        messages: Array<
-          Pick<MessageType, "id" | "body" | "createdAt"> & {
-            author: Pick<Author, "id" | "name">
-            conversation: Pick<ConversationType, "id">
-          }
-        >
-      })
-}
-
-const ADD_MESSAGE = gql`
-  mutation AddMessage(
-    $body: String!
-    $authorId: String!
-    $conversationId: String!
-  ) {
-    addMessage(
-      body: $body
-      authorId: $authorId
-      conversationId: $conversationId
-    ) {
-      id
-      body
-      createdAt
-      author {
-        id
-        name
-      }
-    }
-  }
-`
-type AddMessageData = {
-  addMessage: Pick<MessageType, "id" | "body" | "createdAt"> & {
-    author: Pick<Author, "id" | "name">
-  }
-}
-
-const MESSAGE_ADDED = gql`
-  subscription MessageAdded($conversationId: String!) {
-    messageAdded(conversationId: $conversationId) {
-      id
-      body
-      createdAt
-      author {
-        id
-        name
-      }
-      conversation {
-        id
-      }
-    }
-  }
-`
-type MessageAddedData = {
-  messageAdded: Pick<MessageType, "id" | "body" | "createdAt"> & {
-    author: Pick<Author, "id" | "name">
-    conversation: Pick<ConversationType, "id">
-  }
+type MessageResponse = Pick<MessageType, "id" | "body" | "createdAt"> & {
+  author: Pick<Author, "id" | "name">
+  conversation: Pick<ConversationType, "id">
 }
 
 export function Conversation({ authorId }: Props) {
   const { conversationId } = useParams()
-  const { data } = useQuery<GetConversationData, { conversationId: string }>(
-    GET_CONVERSATION,
-    {
-      variables: { conversationId },
-      fetchPolicy: "network-only",
-    },
-  )
-  const { data: subscriptionData } = useSubscription<
-    MessageAddedData,
-    { conversationId: string }
-  >(MESSAGE_ADDED, {
-    variables: { conversationId },
-  })
 
-  const [newMessages, setNewMessages] = useState<
-    Array<
-      Pick<MessageType, "id" | "body" | "createdAt"> & {
-        author: Pick<Author, "id" | "name">
-        conversation: Pick<ConversationType, "id">
-      }
-    >
-  >([])
+  const { data } = useConversationQuery(conversationId)
+  const [addMessage] = useAddMessageMutation()
+  const { data: subscriptionData } = useMessageAddedSubscription(conversationId)
+
+  const [newMessageBody, setNewMessageBody] = useState("")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [newMessages, setNewMessages] = useState<Array<MessageResponse>>([])
 
   useEffect(() => {
     if (subscriptionData?.messageAdded?.id) {
@@ -138,13 +43,6 @@ export function Conversation({ authorId }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptionData])
-
-  const [addMessage] = useMutation<
-    AddMessageData,
-    { body: string; authorId: string; conversationId: string }
-  >(ADD_MESSAGE)
-  const [newMessageBody, setNewMessageBody] = useState("")
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
   return (
     <Box

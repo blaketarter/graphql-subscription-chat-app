@@ -1,4 +1,3 @@
-import { useMutation } from "@apollo/react-hooks"
 import {
   Box,
   Button,
@@ -7,30 +6,18 @@ import {
   TextField,
   Typography,
 } from "@material-ui/core"
-import gql from "graphql-tag"
 import React, { useState } from "react"
-import { Author } from "../../types"
+import { useCreateAuthorMutation } from "./hooks"
 
 interface Props {
   open: boolean
   setUserId: (userId: string) => unknown
 }
 
-const CREATE_AUTHOR = gql`
-  mutation CreateAuthor($name: String!) {
-    createAuthor(name: $name) {
-      name
-      id
-    }
-  }
-`
-
 export function CreateAuthor({ setUserId, open }: Props) {
+  const [createAuthor] = useCreateAuthorMutation()
+
   const [name, setName] = useState("")
-  const [createAuthor] = useMutation<
-    { createAuthor: Pick<Author, "name" | "id"> },
-    { name: string }
-  >(CREATE_AUTHOR)
 
   return (
     <Dialog open={open}>

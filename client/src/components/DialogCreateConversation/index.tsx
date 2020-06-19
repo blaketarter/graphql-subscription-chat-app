@@ -1,4 +1,3 @@
-import { useMutation } from "@apollo/react-hooks"
 import {
   Button,
   Dialog,
@@ -7,9 +6,8 @@ import {
   DialogTitle,
   TextField,
 } from "@material-ui/core"
-import gql from "graphql-tag"
 import React, { useState } from "react"
-import { Conversation } from "../../types"
+import { useCreateConversationMutation } from "./hooks"
 
 interface Props {
   authorId: string
@@ -17,23 +15,10 @@ interface Props {
   refetch: () => unknown
 }
 
-const CREATE_CONVERSATION = gql`
-  mutation CreateConversation($name: String!, $authorId: String!) {
-    createConversation(name: $name, authorId: $authorId) {
-      name
-      id
-    }
-  }
-`
-
 export function DialogCreateConversation({ authorId, open, refetch }: Props) {
+  const [createConversation] = useCreateConversationMutation()
+
   const [name, setName] = useState("")
-  const [createConversation] = useMutation<
-    {
-      createConversation: Pick<Conversation, "name" | "id">
-    },
-    { name: string; authorId: string }
-  >(CREATE_CONVERSATION)
 
   return (
     <Dialog open={open} onClose={() => refetch()}>

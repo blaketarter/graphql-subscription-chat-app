@@ -1,75 +1,25 @@
-import { useQuery } from "@apollo/react-hooks"
 import { Box, Fab, Typography } from "@material-ui/core"
 import EditIcon from "@material-ui/icons/Edit"
 import ForumIcon from "@material-ui/icons/Forum"
-import gql from "graphql-tag"
 import React, { useEffect, useState } from "react"
 import { Route, useHistory } from "react-router-dom"
-import { Author, Conversation as ConversationType, Message } from "../../types"
 import { Conversation } from "../Conversation"
 import { ConversationCard } from "../ConversationCard"
 import { DialogCreateConversation } from "../DialogCreateConversation"
 import { DialogJoinConversation } from "../DialogJoinConversation"
+import { useAuthorQuery } from "./hooks"
 
 interface Props {
   userId: string | null
   setUserId: (userId: string | null) => unknown
 }
 
-const GET_AUTHOR = gql`
-  query GetAuthor($authorId: String!) {
-    author(authorId: $authorId) {
-      name
-      id
-      conversations {
-        id
-        name
-        participants {
-          id
-          name
-        }
-        messages {
-          id
-          body
-          createdAt
-          author {
-            id
-            name
-          }
-        }
-      }
-    }
-  }
-`
-
-type GetAuthorData = {
-  author:
-    | null
-    | (Pick<Author, "name" | "id"> & {
-        conversations: Array<
-          Pick<ConversationType, "id" | "name"> & {
-            participants: Array<Pick<Author, "id" | "name">>
-            messages: Array<
-              Pick<Message, "id" | "body" | "createdAt"> & {
-                author: Pick<Author, "id" | "name">
-              }
-            >
-          }
-        >
-      })
-}
-
 export function Conversations({ userId, setUserId }: Props) {
+  const history = useHistory()
+  const { data, error, refetch, loading } = useAuthorQuery(userId)
+
   const [createOpen, setCreateOpen] = useState(false)
   const [joinOpen, setJoinOpen] = useState(false)
-  const { data, error, refetch, loading } = useQuery<
-    GetAuthorData,
-    { authorId: string | null }
-  >(GET_AUTHOR, {
-    variables: { authorId: userId },
-    fetchPolicy: "network-only",
-  })
-  const history = useHistory()
 
   useEffect(() => {
     if (error || (!loading && !data?.author)) {
