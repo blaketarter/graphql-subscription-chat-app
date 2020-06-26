@@ -21,13 +21,13 @@ jobs:
       - run: npm run test:deps
       - run: npm run test:types
       - run: npm run test:unit
-      - run: npm run test:visual:ci
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: visual_tests
-          path: ./loki
-      - run: npm run test:e2e:ci
+      # - run: npm run test:visual:ci
+      # - uses: actions/upload-artifact@v1
+      #   if: failure()
+      #   with:
+      #     name: visual_tests
+      #     path: ./loki
+      # - run: npm run test:e2e:ci
 
   Coverage:
     runs-on: ubuntu-latest
