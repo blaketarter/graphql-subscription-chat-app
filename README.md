@@ -12,13 +12,17 @@
 ## How to run
 
 - 1. Start the server
-  - 1A. `cd server`
-  - 1B. `npm ci`
-  - 1C. `npm start`
-2. Start the client
-  - 2A. `cd client`
-  - 2B. `npm ci`
-  - 2C. `npm start`
+  - 1. `cd server`
+  - 2. `npm ci`
+  - 3. `npm start`
+- 2. Start the client
+  - 1. `cd client`
+  - 2. `npm ci`
+  - 3. `npm start`
+
+## Demo
+
+![Chat App Demo](./chat-app-demo.gif)
 
 ## Important files
 
