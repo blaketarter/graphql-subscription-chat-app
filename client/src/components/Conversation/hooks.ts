@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks"
+import { useMutation, useQuery, useSubscription } from "@apollo/client"
 import gql from "graphql-tag"
-import { Author, Conversation, Message } from "../../types"
+import type { Author, Conversation, Message } from "../../types"
 
 const GET_CONVERSATION = gql`
   query GetConversation($conversationId: String!) {

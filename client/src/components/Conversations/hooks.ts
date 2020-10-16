@@ -1,6 +1,6 @@
-import { useQuery } from "@apollo/react-hooks"
+import { useQuery } from "@apollo/client"
 import gql from "graphql-tag"
-import { Author, Conversation, Message } from "../../types"
+import type { Author, Conversation, Message } from "../../types"
 
 const GET_AUTHOR = gql`
   query GetAuthor($authorId: String!) {

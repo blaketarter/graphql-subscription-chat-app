@@ -3,7 +3,7 @@ import AddIcon from "@material-ui/icons/Add"
 import SendIcon from "@material-ui/icons/Send"
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import {
+import type {
   Author,
   Conversation as ConversationType,
   Message as MessageType,

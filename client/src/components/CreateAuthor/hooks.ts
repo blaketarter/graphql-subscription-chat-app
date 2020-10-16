@@ -1,6 +1,6 @@
-import { useMutation } from "@apollo/react-hooks"
+import { useMutation } from "@apollo/client"
 import gql from "graphql-tag"
-import { Author } from "../../types"
+import type { Author } from "../../types"
 
 const CREATE_AUTHOR = gql`
   mutation CreateAuthor($name: String!) {
