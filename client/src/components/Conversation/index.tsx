@@ -27,7 +27,7 @@ type MessageResponse = Pick<MessageType, "id" | "body" | "createdAt"> & {
 }
 
 export function Conversation({ authorId }: Props) {
-  const { conversationId } = useParams()
+  const { conversationId } = useParams<{ conversationId: string }>()
 
   const { data } = useConversationQuery(conversationId)
   const [addMessage] = useAddMessageMutation()
@@ -39,9 +39,8 @@ export function Conversation({ authorId }: Props) {
 
   useEffect(() => {
     if (subscriptionData?.messageAdded?.id) {
-      setNewMessages([...newMessages, subscriptionData.messageAdded])
+      setNewMessages((state) => [...state, subscriptionData.messageAdded])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscriptionData])
 
   return (
