@@ -1,7 +1,7 @@
 import { ApolloProvider } from "@apollo/client"
 import { Box } from "@material-ui/core"
 import React, { useEffect, useState } from "react"
-import { BrowserRouter as Router } from "react-router-dom"
+import { Route, BrowserRouter as Router } from "react-router-dom"
 import { client } from "../../utils/ApolloClient"
 import { Conversations } from "../Conversations"
 import { CreateAuthor } from "../CreateAuthor"
@@ -29,8 +29,12 @@ export function App() {
     >
       <ApolloProvider client={client}>
         <Router>
-          <Conversations userId={userId} setUserId={setUserId} />
-          <CreateAuthor setUserId={setUserId} open={!Boolean(userId)} />
+          <Route path="/:conversationId?">
+            {userId ? (
+              <Conversations userId={userId} setUserId={setUserId} />
+            ) : null}
+            <CreateAuthor setUserId={setUserId} open={!Boolean(userId)} />
+          </Route>
         </Router>
       </ApolloProvider>
     </Box>

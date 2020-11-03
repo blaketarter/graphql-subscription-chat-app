@@ -12,16 +12,22 @@ import { useCreateConversationMutation } from "./hooks"
 interface Props {
   authorId: string
   open: boolean
-  refetch: () => unknown
+  onClose: () => unknown
+  onSubmit: (conversationId: string) => unknown
 }
 
-export function DialogCreateConversation({ authorId, open, refetch }: Props) {
+export function DialogCreateConversation({
+  authorId,
+  open,
+  onClose,
+  onSubmit,
+}: Props) {
   const [createConversation] = useCreateConversationMutation()
 
   const [name, setName] = useState("")
 
   return (
-    <Dialog open={open} onClose={() => refetch()}>
+    <Dialog open={open} onClose={onClose}>
       <DialogTitle>Start a new Conversation</DialogTitle>
       <form
         onSubmit={async (e) => {
@@ -33,8 +39,8 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
             })
 
             if (result?.data?.createConversation.id) {
-              refetch()
               setName("")
+              onSubmit(result.data.createConversation.id)
             }
           }
         }}
@@ -49,7 +55,7 @@ export function DialogCreateConversation({ authorId, open, refetch }: Props) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={refetch}>Cancel</Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button variant="contained" color="primary" type="submit">
             Start
           </Button>

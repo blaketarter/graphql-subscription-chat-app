@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from "@material-ui/core"
+import { Box, ButtonBase, Divider, Typography } from "@material-ui/core"
 import React from "react"
 import { Link } from "react-router-dom"
 
@@ -8,52 +8,68 @@ interface Props {
   participants: string[]
   lastMessage?: string
   lastAuthor?: string
+  active?: boolean
 }
 
 export function ConversationCard({
   id,
   name,
-  participants,
   lastMessage,
   lastAuthor,
+  participants,
+  active,
 }: Props) {
   const truncatedLastMessage =
     (lastMessage?.length ?? 0) > 57
       ? lastMessage?.slice(0, 57) + "..."
       : lastMessage
-
   return (
-    <Box mt={3}>
-      <Card>
-        <Link
-          to={id}
-          style={{
-            textDecoration: "none",
-            color: "unset",
-          }}
-        >
-          <Box padding={2}>
-            <Box pb={1}>
-              <Typography
-                style={{ fontWeight: "bold", textDecoration: "none" }}
-              >
-                {name}
-              </Typography>
-            </Box>
-            {truncatedLastMessage && lastAuthor ? (
-              <Typography variant="body2">
-                {lastAuthor}: {truncatedLastMessage}
-              </Typography>
-            ) : null}
-            <Typography
-              variant="subtitle2"
-              style={{ opacity: 0.6, textDecoration: "none" }}
-            >
-              <em>Participants: {participants.join(", ")}</em>
+    <ButtonBase
+      style={{
+        backgroundColor: active ? "#0000000f" : "initial",
+        display: "block",
+        width: "100%",
+        textAlign: "left",
+      }}
+    >
+      <Link
+        to={id}
+        style={{
+          textDecoration: "none",
+          color: "unset",
+        }}
+      >
+        <Box padding={2}>
+          <Box pb={1}>
+            <Typography style={{ fontWeight: "bold", textDecoration: "none" }}>
+              {name}
             </Typography>
           </Box>
-        </Link>
-      </Card>
-    </Box>
+          <Box pb={1}>
+            <Typography color="textSecondary" style={{ fontSize: "0.75em" }}>
+              with {participants.join(", ")}
+            </Typography>
+          </Box>
+          {truncatedLastMessage && lastAuthor ? (
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              style={{ fontSize: "0.75em" }}
+            >
+              {lastAuthor}: {truncatedLastMessage}
+            </Typography>
+          ) : (
+            <Typography
+              variant="body2"
+              color="textSecondary"
+              style={{ fontSize: "0.75em" }}
+            >
+              <em>No messages yet</em>
+            </Typography>
+          )}
+        </Box>
+        <Divider />
+      </Link>
+    </ButtonBase>
   )
 }

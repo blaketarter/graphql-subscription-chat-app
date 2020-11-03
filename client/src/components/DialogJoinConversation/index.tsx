@@ -50,7 +50,7 @@ export function DialogJoinConversation({ authorId, open, refetch }: Props) {
         </DialogContent>
         <DialogActions>
           <Button onClick={refetch}>Cancel</Button>
-          <Button color="primary" type="submit">
+          <Button color="primary" variant="contained" type="submit">
             Join
           </Button>
         </DialogActions>

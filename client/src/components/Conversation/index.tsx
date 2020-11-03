@@ -1,14 +1,23 @@
-import { Box, Button, TextField, Typography } from "@material-ui/core"
-import AddIcon from "@material-ui/icons/Add"
+import {
+  Box,
+  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@material-ui/core"
+import MoreVertIcon from "@material-ui/icons/MoreVert"
 import SendIcon from "@material-ui/icons/Send"
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useHistory, useParams } from "react-router-dom"
 import type {
   Author,
   Conversation as ConversationType,
   Message as MessageType,
 } from "../../types"
 import { DialogAddToConversation } from "../DialogAddToConversation"
+import { DialogLeaveConversation } from "../DialogLeaveConversation"
 import { Message } from "../Message"
 import {
   useAddMessageMutation,
@@ -26,15 +35,20 @@ type MessageResponse = Pick<MessageType, "id" | "body" | "createdAt"> & {
   conversation: Pick<ConversationType, "id">
 }
 
-export function Conversation({ authorId }: Props) {
+export function Conversation({ authorId, refetch }: Props) {
   const { conversationId } = useParams<{ conversationId: string }>()
+  const history = useHistory()
 
-  const { data } = useConversationQuery(conversationId)
+  const { data, refetch: refetchConversation } = useConversationQuery(
+    conversationId,
+  )
   const [addMessage] = useAddMessageMutation()
   const { data: subscriptionData } = useMessageAddedSubscription(conversationId)
 
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const [newMessageBody, setNewMessageBody] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false)
   const [newMessages, setNewMessages] = useState<Array<MessageResponse>>([])
 
   useEffect(() => {
@@ -50,9 +64,10 @@ export function Conversation({ authorId }: Props) {
       style={{ position: "relative", height: "100%" }}
     >
       <Box
-        paddingX={3}
+        paddingX={2}
         paddingY={2}
         style={{
+          height: 68,
           backgroundColor: "white",
           boxShadow: "3px 3px 5px rgba(0, 0, 0, 0.1)",
           position: "relative",
@@ -66,9 +81,51 @@ export function Conversation({ authorId }: Props) {
             {data?.conversation?.name}
           </Typography>
         </Box>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <AddIcon />
+        <Box display="flex" alignItems="center" mr={1}>
+          <Typography variant="subtitle2" color="textSecondary">
+            with{" "}
+            {data?.conversation?.participants
+              .map((participant) =>
+                participant.id === authorId ? "me" : participant.name,
+              )
+              .join(", ")}
+          </Typography>
+        </Box>
+        <Button onClick={(e) => setAnchorEl(e.currentTarget)}>
+          <MoreVertIcon />
         </Button>
+        <Menu
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+          <MenuItem
+            onClick={() => {
+              setIsAddDialogOpen(true)
+              setAnchorEl(null)
+            }}
+          >
+            Add a participant
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setIsLeaveDialogOpen(true)
+              setAnchorEl(null)
+            }}
+          >
+            Leave the conversation
+          </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              setAnchorEl(null)
+              await refetchConversation()
+              setNewMessages([])
+            }}
+          >
+            Refresh
+          </MenuItem>
+        </Menu>
       </Box>
       <Box
         flexGrow={1}
@@ -90,7 +147,7 @@ export function Conversation({ authorId }: Props) {
               />
             )
           })}
-          {newMessages.length ? <hr /> : null}
+          {newMessages.length ? <Divider /> : null}
           {newMessages
             ?.filter((newMessage) => {
               return (
@@ -161,6 +218,17 @@ export function Conversation({ authorId }: Props) {
         open={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         conversationId={conversationId}
+      />
+      <DialogLeaveConversation
+        open={isLeaveDialogOpen}
+        conversationId={conversationId}
+        authorId={authorId}
+        onClose={() => setIsLeaveDialogOpen(false)}
+        onSubmit={() => {
+          setIsLeaveDialogOpen(false)
+          history.push("/")
+          refetch()
+        }}
       />
     </Box>
   )

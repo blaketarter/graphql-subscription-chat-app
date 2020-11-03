@@ -45,8 +45,8 @@ type GetAuthorData = {
       })
 }
 
-export function useAuthorQuery(authorId: string | null) {
-  return useQuery<GetAuthorData, { authorId: string | null }>(GET_AUTHOR, {
+export function useAuthorQuery(authorId: string) {
+  return useQuery<GetAuthorData, { authorId: string }>(GET_AUTHOR, {
     variables: { authorId },
     fetchPolicy: "network-only",
   })

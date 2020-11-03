@@ -130,5 +130,33 @@ export const resolvers = {
 
       return conversation
     },
+    leaveConversation(_root: unknown, { conversationId, authorId }: { conversationId: string, authorId: string }, _context: unknown) {
+      const author = authors.get(authorId)
+
+      if (!author) {
+        throw new Error("No author found")
+      }
+
+      const conversation = conversations.get(conversationId)
+
+      if (!conversation) {
+        throw new Error("No conversation found")
+      }
+
+      const now = new Date()
+
+      if (conversation.participants.find(participant => participant.id === authorId)) {
+        conversation.participants = conversation.participants.filter(participant => participant.id !== author.id)
+        author.conversations = author.conversations.filter(authorConversation => authorConversation.id !== conversation.id)
+        author.updatedAt = now
+        conversation.updatedAt = now
+      }
+
+      if (conversation.participants.length === 0) {
+        conversations.delete(conversation.id)
+      }
+
+      return conversation
+    },
   },
 };
