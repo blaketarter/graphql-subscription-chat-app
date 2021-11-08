@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/uuid": "^8.3.0",
-    "apollo-server": "^2.18.2",
+    "apollo-server": "^2.25.3",
     "graphql": "^15.3.0",
     "graphql-subscriptions": "^1.1.0",
     "subscriptions-transport-ws": "^0.9.18",
